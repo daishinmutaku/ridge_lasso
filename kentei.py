@@ -1,4 +1,5 @@
 import csv
+import math
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,7 +38,7 @@ def main():
 
     # ridge model
     print("\n ridge model")
-    ridgeAlpha = [0.1, 1, 3, 7, 10]
+    ridgeAlpha = [0.01, 0.1, 1, 10, 100]
     ridgeTrainSetScore = []
     ridgeTestSetScore = []
     for alpha in ridgeAlpha:
@@ -54,18 +55,26 @@ def main():
         for beta in ridge_pl.named_steps.ridge.coef_:
             print("β%d: %0.3f" % (i, beta))
             i += 1
-    for i in range(len(ridgeAlpha)):
-        print("α=%.2f: train=%.2f, test=%.2f" % (ridgeAlpha[i], ridgeTrainSetScore[i], ridgeTestSetScore[i]))
     plt.xlabel("Coefficient index")
     plt.ylabel("Coefficient magnitude")
     plt.legend()
     plt.show()
-    mglearn.plots.plot_ridge_n_samples()
+    alphaLog = []
+    for i in range(len(ridgeAlpha)):
+        alphaLog.append(math.log10(ridgeAlpha[i]))
+        print("α=%.2f: train=%.2f, test=%.2f" % (ridgeAlpha[i], ridgeTrainSetScore[i], ridgeTestSetScore[i]))
+    plt.plot(alphaLog, ridgeTrainSetScore, label="train")
+    plt.plot(alphaLog, ridgeTestSetScore, label="test")
+    plt.xlabel("log_10(α)")
+    plt.ylabel("score")
+    plt.legend()
     plt.show()
+    # mglearn.plots.plot_ridge_n_samples()
+    # plt.show()
 
     # lasso model
     print("\n lasso model")
-    lassoAlpha = [0.02, 0.5, 1]
+    lassoAlpha = [0.0001, 0.001, 0.01, 0.1, 1]
     lassoTrainSetScore = []
     lassoTestSetScore = []
     for alpha in lassoAlpha:
@@ -83,13 +92,20 @@ def main():
         for beta in lasso_pl.named_steps.lasso.coef_:
             print("β%d: %0.3f" % (i, beta))
             i += 1
-    for i in range(len(lassoAlpha)):
-        print("α=%.2f: train=%.2f, test=%.2f" % (lassoAlpha[i], lassoTrainSetScore[i], lassoTestSetScore[i]))
     plt.legend()
     plt.xlabel("Coef index")
     plt.ylabel("Coef magnitude")
     plt.show()
-
+    alphaLog = []
+    for i in range(len(lassoAlpha)):
+        alphaLog.append(math.log10(lassoAlpha[i]))
+        print("α=%.2f: train=%.2f, test=%.2f" % (lassoAlpha[i], lassoTrainSetScore[i], lassoTestSetScore[i]))
+    plt.plot(alphaLog, lassoTrainSetScore, label="train")
+    plt.plot(alphaLog, lassoTestSetScore, label="test")
+    plt.xlabel("log_10(α)")
+    plt.ylabel("score")
+    plt.legend()
+    plt.show()
 
 if __name__ == "__main__":
     main()
