@@ -3,6 +3,7 @@ import math
 
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn import linear_model
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import Pipeline
@@ -77,6 +78,7 @@ def main():
     lassoAlpha = [0.0001, 0.001, 0.01, 0.1, 1]
     lassoTrainSetScore = []
     lassoTestSetScore = []
+    lassoBeta = []
     for alpha in lassoAlpha:
         lasso = Lasso(alpha=alpha).fit(X_train, y_train)
         print("\n alpha={}".format(str(alpha)))
@@ -89,6 +91,7 @@ def main():
         lasso_pl = Pipeline([("poly_10", poly), ("lasso", lasso)])
         print("バイアス: %f" % lasso_pl.named_steps.lasso.intercept_)
         i = 0
+        lassoBeta.append(lasso_pl.named_steps.lasso.coef_)
         for beta in lasso_pl.named_steps.lasso.coef_:
             print("β%d: %0.3f" % (i, beta))
             i += 1
@@ -99,12 +102,19 @@ def main():
     alphaLog = []
     for i in range(len(lassoAlpha)):
         alphaLog.append(math.log10(lassoAlpha[i]))
-        print("α=%.2f: train=%.2f, test=%.2f" % (lassoAlpha[i], lassoTrainSetScore[i], lassoTestSetScore[i]))
+        print("α=%.4f: train=%.2f, test=%.2f" % (lassoAlpha[i], lassoTrainSetScore[i], lassoTestSetScore[i]))
     plt.plot(alphaLog, lassoTrainSetScore, label="train")
     plt.plot(alphaLog, lassoTestSetScore, label="test")
     plt.xlabel("log_10(α)")
     plt.ylabel("score")
     plt.legend()
+    plt.show()
+
+    # solution path of lasso
+    plt.plot(alphaLog, lassoBeta)
+    plt.xlabel('log_10(α)')
+    plt.ylabel('beta')
+    plt.title('LASSO Path')
     plt.show()
 
 if __name__ == "__main__":
