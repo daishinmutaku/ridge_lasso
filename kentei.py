@@ -4,16 +4,24 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import linear_model
+from sklearn.datasets import load_boston
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import Pipeline
 
 import mglearn
 from sklearn.model_selection import train_test_split
+import pandas as pd
 
 def main():
-    # 大きいサイズのサンプルデータ
-    X, y = mglearn.datasets.load_extended_boston()
+   
+    # サンプルデータを用意
+    dataset = load_boston()
+    # 標本データを取得
+    X = dataset.data
+    # 正解データを取得
+    y = dataset.target
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
     print("X: %dx%dの行列" % (X.shape[0], X.shape[1]))
     print("y: %dのベクトル" % y.shape)
