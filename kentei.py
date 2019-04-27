@@ -50,10 +50,26 @@ def main():
     plt.ylabel("Coefficient magnitude")
     plt.savefig('lr.pdf', transparent=True)
     plt.show()
-    
+
+    # alphaの候補
+    alphaConf = 10 ** np.arange(-2, 3, 1, dtype=float)
     # ridge model
+
+    # crossvalidation
+    scaler = StandardScaler()
+    crf = RidgeCV(alphas=10 ** np.arange(-2, 2, 0.1), cv=5)
+    scaler.fit(X)
+    crf.fit(scaler.transform(X), y)
+    ridgeBestAlpha = crf.alpha_
+    print('最適なλ：%f' % ridgeBestAlpha)
+
+
     print("\n ridge model")
-    ridgeAlpha = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+    ridgeAlpha = []
+    for alpha in alphaConf:
+        if ridgeBestAlpha < alpha and alpha/10 < ridgeBestAlpha:
+            ridgeAlpha.append(ridgeBestAlpha)
+        ridgeAlpha.append(alpha)
     ridgeTrainSetScore = []
     ridgeTestSetScore = []
     for alpha in ridgeAlpha:
@@ -76,27 +92,23 @@ def main():
     plt.savefig('ridgeCoef.pdf', transparent=True)
     plt.show()
     alphaLog = []
-    for i in range(len(ridgeAlpha)):
-        alphaLog.append(math.log10(ridgeAlpha[i]))
-        print("α=%.4f: train=%.2f, test=%.2f" % (ridgeAlpha[i], ridgeTrainSetScore[i], ridgeTestSetScore[i]))
-    plt.plot(alphaLog, ridgeTrainSetScore, label="train")
-    plt.plot(alphaLog, ridgeTestSetScore, label="test")
-    plt.xlabel("log_10(α)")
-    plt.ylabel("score")
-    plt.legend()
-    plt.savefig('ridgeScore.pdf', transparent=True)
-    plt.show()
+
+    # lasso model
 
     # crossvalidation
     scaler = StandardScaler()
-    crf = RidgeCV(alphas=10 ** np.arange(-4, 2, 0.1), cv=5)
+    clf = LassoCV(alphas=10 ** np.arange(-2, 2, 0.1), cv=5)
     scaler.fit(X)
-    crf.fit(scaler.transform(X), y)
-    print('最適なλ：%f' % crf.alpha_)
+    clf.fit(scaler.transform(X), y)
+    lassoBestAlpha = clf.alpha_
+    print('最適なλ：%f' % lassoBestAlpha)
 
-    # lasso model
     print("\n lasso model")
-    lassoAlpha = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+    lassoAlpha = []
+    for alpha in alphaConf:
+        if lassoBestAlpha < alpha and alpha/10 < lassoBestAlpha :
+            lassoAlpha.append(lassoBestAlpha)
+        lassoAlpha.append(alpha)
     lassoTrainSetScore = []
     lassoTestSetScore = []
     lassoBeta = []
@@ -121,16 +133,24 @@ def main():
     plt.ylabel("Coef magnitude")
     plt.savefig('lassoCoef.pdf', transparent=True)
     plt.show()
+
+    # Score Map
+    for i in range(len(ridgeAlpha)):
+        alphaLog.append(math.log10(ridgeAlpha[i]))
+        print("α=%.4f: train=%.2f, test=%.2f" % (ridgeAlpha[i], ridgeTrainSetScore[i], ridgeTestSetScore[i]))
     alphaLog = []
     for i in range(len(lassoAlpha)):
         alphaLog.append(math.log10(lassoAlpha[i]))
         print("α=%.4f: train=%.2f, test=%.2f" % (lassoAlpha[i], lassoTrainSetScore[i], lassoTestSetScore[i]))
-    plt.plot(alphaLog, lassoTrainSetScore, label="train")
-    plt.plot(alphaLog, lassoTestSetScore, label="test")
+    plt.plot(alphaLog, ridgeTrainSetScore, label="ridge_train")
+    plt.plot(alphaLog, ridgeTestSetScore, label="ridge_test")
+    plt.plot(alphaLog, lassoTrainSetScore, label="lasso_train")
+    plt.plot(alphaLog, lassoTestSetScore, label="lasso_test")
     plt.xlabel("log_10(α)")
-    plt.ylabel("score")
+    plt.plot([math.log10(ridgeBestAlpha), math.log10(ridgeBestAlpha)], [0, 1], "black", linestyle='dashed')
+    plt.plot([math.log10(lassoBestAlpha), math.log10(lassoBestAlpha)], [0, 1], "black", linestyle='dashed')
     plt.legend()
-    plt.savefig('lassoScore.pdf', transparent=True)
+    plt.savefig('score.pdf', transparent=True)
     plt.show()
 
     # solution path of lasso
@@ -141,12 +161,6 @@ def main():
     plt.savefig('lassoPath.pdf', transparent=True)
     plt.show()
 
-    # crossvalidation
-    scaler = StandardScaler()
-    clf = LassoCV(alphas=10 ** np.arange(-4, 2, 0.1), cv=5)
-    scaler.fit(X)
-    clf.fit(scaler.transform(X), y)
-    print('最適なλ：%f' % clf.alpha_)
 
 if __name__ == "__main__":
     main()
