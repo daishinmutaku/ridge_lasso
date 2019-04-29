@@ -37,8 +37,10 @@ def main():
     # least squares model
     print("\n least squares model")
     lr = LinearRegression().fit(X_train, y_train)
-    print("Train set score: {:.2f}".format(lr.score(X_train, y_train)))
-    print("Test set score: {:.2f}".format(lr.score(X_test, y_test)))
+    lrTrainSetScore = lr.score(X_train, y_train)
+    lrTestSetScore = lr.score(X_test, y_test)
+    print("Train set score: {:.2f}".format(lrTrainSetScore))
+    print("Test set score: {:.2f}".format(lrTestSetScore))
     plt.plot(lr.coef_)
     lr_pl = Pipeline([("poly_10", poly), ("lr", lr)])
     print("バイアス: %f" % lr_pl.named_steps.lr.intercept_)
@@ -48,7 +50,7 @@ def main():
         i += 1
     plt.xlabel("Coefficient index")
     plt.ylabel("Coefficient magnitude")
-    plt.savefig('lr.pdf', transparent=True)
+    # plt.savefig('lr.pdf', transparent=True)
     plt.show()
 
     # alphaの候補
@@ -79,7 +81,7 @@ def main():
         ridgeTrainSetScore.append(ridge.score(X_train, y_train))
         print("Test set score: {:.2f}".format(ridge.score(X_test, y_test)))
         ridgeTestSetScore.append(ridge.score(X_test, y_test))
-        plt.plot(ridge.coef_, label="alpha:{}".format(str(alpha)))
+        plt.plot(ridge.coef_, label="alpha:{:.2f}".format(alpha))
         ridge_pl = Pipeline([("poly_10", poly), ("ridge", ridge)])
         print("バイアス: %f" % ridge_pl.named_steps.ridge.intercept_)
         i = 0
@@ -89,7 +91,7 @@ def main():
     plt.xlabel("Coefficient index")
     plt.ylabel("Coefficient magnitude")
     plt.legend()
-    plt.savefig('ridgeCoef.pdf', transparent=True)
+    # plt.savefig('ridgeCoef.pdf', transparent=True)
     plt.show()
     alphaLog = []
 
@@ -120,7 +122,7 @@ def main():
         print("Test set score: {:.2f}".format(lasso.score(X_test, y_test)))
         lassoTestSetScore.append(lasso.score(X_test, y_test))
         print("Number of features used:{}".format(np.sum(lasso.coef_ != 0)))
-        plt.plot(lasso.coef_, label="alpha:{}".format(str(alpha)))
+        plt.plot(lasso.coef_, label="alpha:{:.2f}".format(alpha))
         lasso_pl = Pipeline([("poly_10", poly), ("lasso", lasso)])
         print("バイアス: %f" % lasso_pl.named_steps.lasso.intercept_)
         i = 0
@@ -131,7 +133,7 @@ def main():
     plt.legend()
     plt.xlabel("Coef index")
     plt.ylabel("Coef magnitude")
-    plt.savefig('lassoCoef.pdf', transparent=True)
+    # plt.savefig('lassoCoef.pdf', transparent=True)
     plt.show()
 
     # Score Map
@@ -142,22 +144,32 @@ def main():
     for i in range(len(lassoAlpha)):
         alphaLog.append(math.log10(lassoAlpha[i]))
         print("α=%.4f: train=%.2f, test=%.2f" % (lassoAlpha[i], lassoTrainSetScore[i], lassoTestSetScore[i]))
+    plt.plot([-2, 2], [lrTrainSetScore, lrTrainSetScore], label="linear_train")
+    plt.plot([-2, 2], [lrTestSetScore, lrTestSetScore], label="linear_test")
     plt.plot(alphaLog, ridgeTrainSetScore, label="ridge_train")
     plt.plot(alphaLog, ridgeTestSetScore, label="ridge_test")
     plt.plot(alphaLog, lassoTrainSetScore, label="lasso_train")
     plt.plot(alphaLog, lassoTestSetScore, label="lasso_test")
     plt.xlabel("log_10(α)")
-    plt.plot([math.log10(ridgeBestAlpha), math.log10(ridgeBestAlpha)], [0, 1], "black", linestyle='dashed')
-    plt.plot([math.log10(lassoBestAlpha), math.log10(lassoBestAlpha)], [0, 1], "black", linestyle='dashed')
+    plt.ylabel("determination R^2")
+    plt.plot([math.log10(ridgeBestAlpha), math.log10(ridgeBestAlpha)], [0, 1], "black", linestyle='dashed', label="ridge_CV")
+    plt.plot([math.log10(lassoBestAlpha), math.log10(lassoBestAlpha)], [0, 1], "gray", linestyle='dashed', label="lasso_CV")
     plt.legend()
     plt.savefig('score.pdf', transparent=True)
     plt.show()
 
     # solution path of lasso
-    plt.plot(alphaLog, lassoBeta)
+    i = 0
+    lassoBetaArray = np.array(lassoBeta)
+    lassoBetaArrayT = lassoBetaArray.T
+    for beta in lassoBetaArrayT:
+        print(beta)
+        plt.plot(alphaLog, beta, label="β:{:.0f}".format(i))
+        i += 1
     plt.xlabel('log_10(α)')
     plt.ylabel('beta')
     plt.title('LASSO Path')
+    plt.legend()
     plt.savefig('lassoPath.pdf', transparent=True)
     plt.show()
 
