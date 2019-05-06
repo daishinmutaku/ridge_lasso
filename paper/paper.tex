@@ -52,31 +52,33 @@
 \maketitle
 \section{はじめに}
 複雑な構造を内在する現象の分析では，多項式回帰などの説明変数に関して非線形なモデルを考える必要がある．このような複雑なモデルの推定において生じる過学習を防ぐ手法が正則化法である．本稿では正則化法の中でも，RidgeとLassoを用いた推定を紹介する．また，それらを用いて実際のデータに対して計算機実験を行った．
+
 \section{RidgeとLassoの推定}
-$i$番目($i = 1, 2, \dots, n$)のデータの目的変数を$y_i$，説明変数を$\bm{x}_i=(x_{i1}, \dots, x_{ip})^{\top} \in \mathbb{R}^p$，誤差を$\epsilon_i \sim \mathcal{N}(0, \sigma^2)$，および回帰係数を$\bm{\beta}=(\beta_0, \beta_1, \dots , \beta_p)^{\top} \in \mathbb{R}^{p+1}$とした時の線形回帰モデル
+$i$番目($i = 1, 2, \dots, n$)のデータの目的変数を$y_i$，説明変数を$\bm{x}_i=(x_{i1}, \dots, x_{ip})^{\top} \in \mathbb{R}^p$，誤差を$\epsilon_i \sim \mathcal{N}(0, \sigma^2)$，および回帰係数を$\bm{\beta}=(\beta_0, \beta_1, \dots , \beta_p)^{\top} \in \mathbb{R}^{p+1}$として，線形回帰モデル
 \begin{equation}
 	y_i=\beta_0 + \beta_1 x_{i1} + \beta_2  x_{i2} + \dots + \beta_p x_{ip} + \epsilon_i
 	\label{eq:linear_model_origin}
 \end{equation}
-を考える．パラメータベクトルの長さの概念を一般化した$L_q$ノルムと呼ばれる正則化項を用いた正則最小2乗法は
+を考える．パラメータベクトルの長さの概念を一般化した$L_q$ノルムを正則化項に用いると，正則最小2乗法は
 \begin{equation}
-	S\alpha(\bm{\beta}) = \sum_{i=1}^{n}\bigl(
+	S_{\alpha}(\bm{\beta}) = \sum_{i=1}^{n}\bigl(
 		y_i - (
 			\beta_0 + \sum_{j=1}^{p} \beta_j {x}_{ij}
 		)
 	\bigr)^2 + \alpha \sum_{j=1}^{p} |\beta_j|^q
 	\label{eq:extendLinearRegression}
 \end{equation}
-のよう記述できる．$\alpha \in \mathbb{R}^+$はモデルの複雑度を設定するハイパーパラメータであり，式\eqref{eq:extendLinearRegression} の第2項が$q=1 (L_1ノルム)$の場合をLasso，$q=2$の場合をRidgeと呼ぶ．
+のよう記述できる．$\alpha \in \mathbb{R}^+$はモデルの複雑度を設定するハイパーパラメータであり，式\eqref{eq:extendLinearRegression} の第2項が$q=1$($L_1$ノルム)の場合をLasso，$q=2$の場合をRidgeと呼ぶ．
+
 \subsection{Ridge}
 切片を除く回帰係数の2乗和を正則化項としてとることで，説明変数間の強い相関によって生じる回帰係数の推定値の不安定性を回避する手法をRidgeという．Ridge推定量の求め方は次のようになる．
 
-$j$番目の説明変数に関するデータの平均値$\bar{x}_j$を中心化したデータを$z_{ij}=x_{ij} - \bar{x}_j$として，式\eqref{eq:linear_model_origin}は次のように変形できる．
+$j$番目の説明変数に関するデータの平均値$\bar{x}_j$を中心化したデータを$z_{ij}=x_{ij} - \bar{x}_j$とすると，式\eqref{eq:linear_model_origin}は次のように変形できる．
 \begin{equation}
         y_i = \beta_0^* + \beta_1 z_{i1} + \dots + \beta_p z_{ip} + \epsilon_i
 	\label{eq:linear_model_centering}
 \end{equation}
-ただし，$\beta_0^* = \beta_0 + \beta_1 \bar{x}_{i1} + \dots + \beta_p \bar{x}_{p}$である．さらに，$\bm{\beta}_1 = (\beta_1, \beta_2, \dots , \beta_p)^{\top} \in \mathbb{R}^p$および$ \bm{1} = (1, 1, \dots , 1)^{\top} \in \mathbb{R}^n$と定義すると式\eqref{eq:linear_model_centering}は以下の行列形式で記述できる．
+ただし，$\beta_0^* = \beta_0 + \beta_1 \bar{x}_{1} + \dots + \beta_p \bar{x}_{p}$である．さらに，$\bm{\beta}_1 = (\beta_1, \beta_2, \dots , \beta_p)^{\top} \in \mathbb{R}^p$および$ \bm{1} = (1, 1, \dots , 1)^{\top} \in \mathbb{R}^n$と定義すると式\eqref{eq:linear_model_centering}は以下の行列形式で記述できる．
 \begin{equation}
 	\begin{split}
 		\bm{y} &= \beta_0^* \bm{1} + Z \bm{\beta}_1 + \bm{\epsilon}\\
@@ -92,7 +94,7 @@ $j$番目の説明変数に関するデータの平均値$\bar{x}_j$を中心化
 \end{equation}
 よって，Ridgeの線形回帰モデルは，
 \begin{equation}
-	S\alpha(\beta_0^* , \bm{\beta}_1) = (\bm{y} - \beta_0^* \bm{1} - Z \bm{\beta}_1)^{\top} (\bm{y} - \beta_0^* \bm{1} - Z \bm{\beta}_1) + \alpha \bm{\beta}_1^{\top} \bm{\beta}_1 
+	S_{\alpha}(\beta_0^* , \bm{\beta}_1) = (\bm{y} - \beta_0^* \bm{1} - Z \bm{\beta}_1)^{\top} (\bm{y} - \beta_0^* \bm{1} - Z \bm{\beta}_1) + \alpha \bm{\beta}_1^{\top} \bm{\beta}_1 
 	\label{eq:ridge_estimate}
 \end{equation}
 と記述できる．これを最小化することで，次のような切片と回帰係数ベクトルの推定量が与えられる．
@@ -100,29 +102,31 @@ $j$番目の説明変数に関するデータの平均値$\bar{x}_j$を中心化
 	\hat{\beta_0^*} = \bar{y}, \quad \hat{\bm{\beta}_1} = (Z^{\top}Z + \alpha I_p)^{-1} Z^{\top} \bm{y}
 	\label{eq:ridge_estimate_res}
 \end{equation}
-式\eqref{eq:ridge_estimate_res}の結果から，式\eqref{eq:linear_model_origin}の切片は$\hat{\beta_0} = \bar{y} - \hat{\beta}_1 \bar{x}_1 - \dots - \hat{\beta_p} \bar{x}_p$と推定されることが分かる．つまり，中心化したデータから構成された計画行列Zを用いれば，式\eqref{eq:ridge_estimate}の$\beta_0^*$を考えることなく，
+ただし，$\bar{y}=\sum_{i=1}^{n}{y_i}/n$とする．式\eqref{eq:ridge_estimate_res}の結果から，式\eqref{eq:linear_model_origin}の切片は$\hat{\beta_0} = \bar{y} - \hat{\beta}_1 \bar{x}_1 - \dots - \hat{\beta_p} \bar{x}_p$と推定されることが分かる．つまり，中心化したデータから構成された計画行列Zを用いれば，式\eqref{eq:ridge_estimate}の$\beta_0^*$を考えることなく，
 \begin{equation}
-	S\alpha(\bm{\beta}_1) = (\bm{y} - Z \bm{\beta}_1)^{\top}  (\bm{y} - Z\bm{\beta}_1) + \alpha \bm{\beta}_1^{\top} \bm{\beta}_1
+	S_{\alpha}(\bm{\beta}_1) = (\bm{y} - Z \bm{\beta}_1)^{\top}  (\bm{y} - Z\bm{\beta}_1) + \alpha \bm{\beta}_1^{\top} \bm{\beta}_1
 	\label{eq:ridge_estimate_beta1hat}
 \end{equation}
 の最小化によって$\hat{\bm{\beta}_1}$を得られる．
+
 \subsection{Lasso}
 切片を除く回帰係数の絶対値の和を正則化項としてとることで，パラメータの一部は完全に0と推定される．このようなモデルの推定と変数選択を同時に実行できる手法をLassoという．切片を除く回帰係数はデータを中心化することによって切片と切り離して推定できるため
 \begin{equation}
-        S\alpha(\bm\beta_1) = \sum_{i=1}^{n} \bigl(
+        S_{\alpha}(\bm\beta_1) = \sum_{i=1}^{n} \bigl(
         	y_i - \sum_{j=1}^{p} \beta_j z_{ij}
         \bigr)^2 + \alpha \sum_{j=1}^{p}|\beta_j|
 \end{equation}
 の最小化によって与えられる．しかし，$L_1$正則化項が微分不可能であるため解析的に$\bm{\beta}_1$を求めることはできない．
 このため，Fu (1998)によるshootingアルゴリズムやEfron et al. (2004)によるLARS (Least Angle Regression) と呼ばれる計算手法が用いられる．
 
-また，ラグランジュの未定乗数法を適用すると，次の様な制約条件つきのパラメータベクトルの最小化と同等になる．
+また，ラグランジュの未定乗数法を適用すると，次の様な制約条件つきのベクトルの最小化と同等になる．
 \begin{equation}
 	\min \sum_{i=1}^{n}\bigl(
 		 y_i - \sum_{j=1}^{p} \beta_j z_{ij}
 	\bigr)^2 \quad
 	\text{subject to} \quad \sum_{j=1}^{p} |\beta_j| \leq \eta
 \end{equation}
+
 \section{計算機実験}
 実データ実験として，アメリカのボストン州の住宅価格を，線形回帰モデルにより推定する．データ数は506で，住宅価格に影響を与えていると思われる以下の13個の説明変数を持つ．
 \begin{table}[htb]
@@ -137,13 +141,14 @@ $j$番目の説明変数に関するデータの平均値$\bar{x}_j$を中心化
 	\end{tabular}
 \end{table}
 
-通常の最小2乗法，RidgeおよびLassoを用いて回帰係数$\bm\beta$の推定を行い，結果を比較した．RidgeおよびLassoは$\alpha \in \{0.01, 0.1, 1, 10, 100\}$で実験を行った．この実験結果として，最小2乗法により推定された$\hat{\bm{\beta}}$の値を図\ref{fig:lr}，$\alpha$の変化によるRidgeおよびLassoの推定値$\hat{\bm{\beta}}$の解パスをそれぞれ図\ref{fig:ridge}，図\ref{fig:lasso}に示す．$\alpha$が0に近い場合，RidgeとLassoの各推定値は最小2乗法のそれにかなり近いことが分かる．$\alpha$が大きくなるにつれて，RidgeもLassoも全ての説明変数の推定値が0に向かって縮小している．特に，Lassoにおいて$\alpha$=100の場合は全ての回帰係数の値がほぼ0となっている．これらの結果から，$\alpha$の大きさの違いによって正則化の強さが変化することを確認できる．また，Lassoでの変数選択の結果も図\ref{fig:lasso}から確認できる．実際に$\alpha=100$において変数選択されたのは，固定資産税($x_{10}$)と有色人種の割合($x_{12}$)であり，$\alpha=10$において変数選択されたのは，先ほどの$x_{10}$と$x_{12}$に加えて，宅地の割合($x_2$)と低所得者の割合($x_{13}$)であった．
+通常の最小2乗法，RidgeおよびLassoを用いて回帰係数$\bm\beta$の推定を行い，結果を比較した．RidgeおよびLassoは$\alpha \in \{0.01, 0.1, 1, 10, 100\}$で実験を行った．この実験結果として，最小2乗法により推定された$\hat{\bm{\beta}}$の値を図\ref{fig:lr}，$\alpha$の変化によるRidgeおよびLassoの推定値$\hat{\bm{\beta}}$の解パスをそれぞれ図\ref{fig:ridge}，図\ref{fig:lasso}に示す．
+$\alpha$が0に近い場合，RidgeとLassoの各推定値は最小2乗法のそれにかなり近いことが分かる．$\alpha$が大きくなるにつれて，RidgeもLassoも全ての説明変数の推定値が0に向かって縮小している．特に，Lassoにおいて$\alpha$=100の場合は全ての回帰係数の値がほぼ0となっている．これらの結果から，$\alpha$の大きさの違いによって正則化の強さが変化することを確認できる．また，Lassoでの変数選択の結果も図\ref{fig:lasso}から確認できる．実際に$\alpha=100$において変数選択されたのは，固定資産税($x_{10}$)と有色人種の割合($x_{12}$)であり，$\alpha=10$において変数選択されたのは，先ほどの$x_{10}$と$x_{12}$に加えて，宅地の割合($x_2$)と低所得者の割合($x_{13}$)であった．
 
-続いて，先の実データの説明変数の数を103に増やしたもので同様の実験を行い，推定手法の精度の指標である決定係数を比較した．
+続いて，先の実データの説明変数の数を103に増やしたもので同様の実験を行い，推定手法の精度の指標である決定係数
 \begin{equation}
 	R^2 = 1 - \frac{\sum_{i}^{}(y_i - \hat{y}_i)^2}{\sum_{i}^{}(y_i - \bar{y})^2}
 \end{equation}
-ただし，$\bar{y}=\sum_{i=1}^{n}{y_i}/n$とする．この実験結果として，RidgeとLassoの訓練データとテストデータにおける，$\alpha$の変化による決定係数の推移を図\ref{fig:score}と表\ref{tab:score}に示す．訓練データでは，$\alpha$が大きくなるにつれて，RidgeとLassoの両方の決定係数の値が小さくなっている．特に，Lassoでは$\alpha \geq 10$の時点で決定係数が0となっている．これらの結果から，RidgeとLassoの両方において，$\alpha$が0に近づくほど最小2乗法の決定係数に近づいていることが分かる．また，テストデータでは，適切な$\alpha$を設定することで，RidgeとLassoの両方において，最小2乗法を上回る精度を出すことが分かった．
+を比較した．この実験結果として，RidgeとLassoの訓練データとテストデータにおける，$\alpha$の変化による決定係数の推移を図\ref{fig:score}と表\ref{tab:score}に示す．訓練データでは，$\alpha$が大きくなるにつれて，RidgeとLassoの両方の決定係数の値が小さくなっている．特に，Lassoでは$\alpha \geq 10$の時点で決定係数が0となっている．これらの結果から，RidgeとLassoの両方において，$\alpha$が0に近づくほど最小2乗法の決定係数に近づくことが分かる．また，テストデータでは，適切な$\alpha$を設定することで，RidgeとLassoの両方において，最小2乗法を上回る精度を出すことが分かった．
 
 \begin{figure}[H]
     \begin{tabular}{cc}
