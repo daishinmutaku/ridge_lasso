@@ -105,12 +105,12 @@
         \item 回帰係数: $\bm{\beta}=(\beta_0, \beta_1, \dots , \beta_p)^{\top} \in \mathbb{R}^{p+1}$
     \end{itemize}
 \end{frame}
-\subsection{正則最小2乗法}
+\subsection{正則化最小2乗法}
 \begin{frame}{\insertsubsection}
     線形回帰モデルに次の正則化項を加える
     \begin{equation}
         S_{\alpha}(\bm{\beta}) = 
-        \underset{\text{2乗誤差}}{\underline{
+        \underset{\text{2乗誤差の和}}{\underline{
             \sum_{i=1}^{n}\bigl(
         		y_i - (
         			\beta_0 + \sum_{j=1}^{p} \beta_j {x}_{ij}
@@ -124,7 +124,6 @@
     \end{equation}
     \begin{itemize}
         \item モデルの複雑度を設定するハイパーパラメータ: $\alpha \in \mathbb{R}^+$
-        \item 正則化項: パラメータベクトルの長さの概念を一般化した$L_q$ノルム
      \end{itemize}
      \vspace{10pt}
     第2項の$q$の値によって次のように呼ばれる
@@ -141,7 +140,7 @@
         切片を除く回帰係数の2乗和を正則化項としてとることで，説明変数間の強い相関によって生じる回帰係数の推定値の不安定性を回避する手法
     \end{block}
     \vspace{10pt}
-    Ridge推定量の求め方は次の式になる
+    Ridge推定量を導出するため，線形回帰モデルの中心化を考える
     \begin{equation}
         y_i = \beta_0^* + \beta_1 z_{i1} + \dots + \beta_p z_{ip} + \epsilon_i
 	\label{eq:linear_model_centering}
@@ -152,9 +151,9 @@
 	\item $\beta_0^* = \beta_0 + \beta_1 \bar{x}_{1} + \dots + \beta_p \bar{x}_{p}$
     \end{itemize}
 \end{frame}
-\subsection{Ridge の線形回帰モデル}
+\subsection{Ridge回帰モデル}
 \begin{frame}{\insertsubsection}
-    行列形式にすると次のように変形できる
+    中心化した線形回帰モデルは次の行列形式で記述できる
     \begin{equation}
 	\begin{split}
 		\bm{y} &= \beta_0^* \bm{1} + Z \bm{\beta}_1 + \bm{\epsilon}\\
@@ -173,7 +172,7 @@
 	\item $ \bm{1} = (1, 1, \dots , 1)^{\top} \in \mathbb{R}^n$
     \end{itemize}
     \vspace{10pt}
-    以上よりRidgeの線形回帰モデルは次の式となる
+    以上よりRidge回帰モデルは次の式となる
     \begin{equation}
         	S_{\alpha}(\beta_0^* , \bm{\beta}_1) = (\bm{y} - \beta_0^* \bm{1} - Z \bm{\beta}_1)^{\top} (\bm{y} - \beta_0^* \bm{1} - Z \bm{\beta}_1) + \alpha \bm{\beta}_1^{\top} \bm{\beta}_1 
     	\label{eq:ridge_estimate}
@@ -183,7 +182,11 @@
 \end{frame}
 \subsection{Ridgeの推定量}
 \begin{frame}{\insertsubsection}
-        切片: $\hat{\beta_0^*} = \bar{y} = \frac{\sum_{i=1}^{n}{y_i}}{n}$，回帰係数ベクトル: $\hat{\bm{\beta}_1} = (Z^{\top}Z + \alpha I_p)^{-1} Z^{\top} \bm{y}$\\
+	中心化したRidge回帰モデルの推定量
+	\begin{itemize}
+	\item 切片: $\hat{\beta_0^*} = \bar{y} = \frac{\sum_{i=1}^{n}{y_i}}{n}$
+	\item 回帰係数ベクトル: $\hat{\bm{\beta}_1} = (Z^{\top}Z + \alpha I_p)^{-1} Z^{\top} \bm{y}$
+	\end{itemize}
     \vspace{10pt}
     この結果から式\eqref{eq:linear_model_origin}の切片は$\hat{\beta_0} = \bar{y} - \hat{\beta}_1 \bar{x}_1 - \dots - \hat{\beta_p} \bar{x}_p$と推定される\\
     \vspace{10pt}
@@ -212,18 +215,20 @@
 \subsection{Lassoの計算手法}
 \begin{frame}{\insertsubsection}
     $L_1$正則化項が微分不可能であるため解析的に$\bm{\beta}_1$を求めることはできない\\
-    $\rightarrow$ 次のような計算手法・最小化問題が用いられる
+    $\rightarrow$ 次のような計算手法が用いられる
     \begin{itemize}
 	\item shootingアルゴリズム (Fu 1998)
 	\item LARS (Efron et al. 2004)
-	\item ラグランジュの未定乗数法による制約条件つきのベクトルの最小化
+    \end{itemize}
+	\vspace{10pt}
+	また，ラグランジュの未定乗数法を用いて制約つき最小化問題に変形できる
 	\begin{equation}
         	\min \sum_{i=1}^{n}\bigl(
         		 y_i - \sum_{j=1}^{p} \beta_j z_{ij}
         	\bigr)^2 \quad
         	\text{subject to} \quad \sum_{j=1}^{p} |\beta_j| \leq \eta
         \end{equation}
-    \end{itemize}
+
 \end{frame}
 
 \section{計算機実験}
@@ -273,9 +278,9 @@
     \end{figure}
     \begin{itemize}
         \item $\alpha$が0に近いほど，RidgeとLassoの各推定値は最小2乗法のそれに近い
-        \item $\alpha$が大きくなるにつれて，RidgeもLassoも全説明変数の推定値が0に向かって縮小している
+        \item $\alpha$が大きくなるにつれて，RidgeもLassoも全説明変数の推定値が0に向かって縮小
          \begin{itemize}
-            \item 特に，Lassoにおいて$\alpha$=100の場合は全ての回帰係数の値がほぼ0となっている
+            \item 特に，Lassoにおいて$\alpha$=100の場合は全ての回帰係数の値がほぼ0
          \end{itemize}
     \end{itemize}
     $\rightarrow$ $\alpha$の大きさの違いによって正則化の強さが変化することを確認できる
@@ -291,22 +296,20 @@
             		 \label{fig:lasso}
             	\end{minipage}
 	 	\begin{minipage}{0.5\hsize}
-			\begin{itemize}
-                               \item 左図から変数選択の結果が確認できる
-                                   \begin{itemize}
-                                       \item $\alpha=100$において選択された変数
-                                        \begin{itemize}
-                                            \item 固定資産税($x_{10}$)
-                                            \item 有色人種の割合($x_{12}$)
-                                       \end{itemize}
-                                      \item $\alpha=10$において選択された変数
-                                      \begin{itemize}
-                                            \item $x_{10}$と$x_{12}$
-                                            \item 宅地の割合($x_2$)
-                                            \item 低所得者の割合($x_{13}$)
-                                       \end{itemize}
+                           左図から変数選択の結果が確認できる
+                               \begin{itemize}
+                                   \item $\alpha=100$において選択された変数
+                                    \begin{itemize}
+                                        \item 固定資産税($x_{10}$)
+                                        \item 有色人種の割合($x_{12}$)
                                    \end{itemize}
-                            \end{itemize}
+                                  \item $\alpha=10$において選択された変数
+                                  \begin{itemize}
+                                        \item $x_{10}$と$x_{12}$
+                                        \item 宅地の割合($x_2$)
+                                        \item 低所得者の割合($x_{13}$)
+                                   \end{itemize}
+                               \end{itemize}
             	\end{minipage}
     	     \end{tabular}
     \end{figure}
@@ -318,7 +321,7 @@
     \begin{block}{実験設定}
         \begin{itemize}
                 \item 目的変数: アメリカのボストン州の住宅価格
-                \item 説明変数: 住宅価格に影響を与えていると思われる以下の103個
+                \item 説明変数: 住宅価格に影響を与えていると思われる103個
                 \item データ数: 506
         \end{itemize}
     \end{block}
