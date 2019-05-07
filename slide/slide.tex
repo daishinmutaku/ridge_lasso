@@ -99,15 +99,15 @@
     	\label{eq:linear_model_origin}
     \end{equation}    
     \begin{itemize}
-        \item $i$番目($i = 1, 2, \dots, n$)のデータの目的変数: $y_i$\\
-        \item 説明変数: $\bm{x}_i=(x_{i1}, \dots, x_{ip})^{\top} \in \mathbb{R}^p$\\
-        \item 誤差: $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$\\
-        \item 回帰係数: $\bm{\beta}=(\beta_0, \beta_1, \dots , \beta_p)^{\top} \in \mathbb{R}^{p+1}$
+        \item $y_i$: $i$番目($i = 1, 2, \dots, n$)のデータの目的変数
+        \item $\bm{x}_i=(x_{i1}, \dots, x_{ip})^{\top} \in \mathbb{R}^p$: 説明変数
+        \item $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$: 誤差
+        \item $\bm{\beta}=(\beta_0, \beta_1, \dots , \beta_p)^{\top} \in \mathbb{R}^{p+1}$: 回帰係数
     \end{itemize}
 \end{frame}
 \subsection{正則化最小2乗法}
 \begin{frame}{\insertsubsection}
-    線形回帰モデルに次の正則化項を加える
+     最小2乗法の損失関数に次の正則化項を加える
     \begin{equation}
         S_{\alpha}(\bm{\beta}) = 
         \underset{\text{2乗誤差の和}}{\underline{
@@ -118,12 +118,12 @@
             \bigr)^2
         }}
     	 +  \underset{\text{正則化項}}{\underline{
-            \alpha \sum_{j=1}^{p} |\beta_j|^q
+            \alpha \sum_{j=1}^{p} \|\beta_j\|_q^q
         }}
     	\label{eq:extendLinearRegression}
     \end{equation}
     \begin{itemize}
-        \item モデルの複雑度を設定するハイパーパラメータ: $\alpha \in \mathbb{R}^+$
+        \item $\alpha \in \mathbb{R}^+$: モデルの複雑度を設定するハイパーパラメータ
      \end{itemize}
      \vspace{10pt}
     第2項の$q$の値によって次のように呼ばれる
@@ -137,7 +137,12 @@
 \subsection{Ridgeとは}
 \begin{frame}{\insertsubsection}
     \begin{block}{Ridge}
-        切片を除く回帰係数の2乗和を正則化項としてとることで，説明変数間の強い相関によって生じる回帰係数の推定値の不安定性を回避する手法
+        説明変数間の強い相関から生じる
+        \textcolor{red}{多重共線性を回避}
+        する手法
+        \begin{itemize}
+        	\item 多重共線性: $(X^{\top}X)^{-1}$の計算の部分で分母が0になる問題
+        \end{itemize}
     \end{block}
     \vspace{10pt}
     Ridge推定量を導出するため，線形回帰モデルの中心化を考える
@@ -146,8 +151,8 @@
 	\label{eq:linear_model_centering}
     \end{equation}
     \begin{itemize}
-    	\item $j$番目の説明変数に関するデータの平均値: $\bar{x}_j$
-	\item  $\bar{x}_j$を中心化したデータ: $z_{ij}=x_{ij} - \bar{x}_j$
+    	\item $\bar{x}_j$: $j$番目の説明変数に関するデータの平均値
+	\item $z_{ij}=x_{ij} - \bar{x}_j$: $\bar{x}_j$を中心化したデータ
 	\item $\beta_0^* = \beta_0 + \beta_1 \bar{x}_{1} + \dots + \beta_p \bar{x}_{p}$
     \end{itemize}
 \end{frame}
@@ -172,20 +177,20 @@
 	\item $ \bm{1} = (1, 1, \dots , 1)^{\top} \in \mathbb{R}^n$
     \end{itemize}
     \vspace{10pt}
-    以上よりRidge回帰モデルは次の式となる
+    Ridge回帰モデル
     \begin{equation}
         	S_{\alpha}(\beta_0^* , \bm{\beta}_1) = (\bm{y} - \beta_0^* \bm{1} - Z \bm{\beta}_1)^{\top} (\bm{y} - \beta_0^* \bm{1} - Z \bm{\beta}_1) + \alpha \bm{\beta}_1^{\top} \bm{\beta}_1 
     	\label{eq:ridge_estimate}
     \end{equation}
     \vspace{10pt}
-    この式の最小化により次のような切片と回帰係数ベクトルの推定量が与えられる
+    この式の最小化により切片と回帰係数ベクトルの推定量が求められる
 \end{frame}
 \subsection{Ridgeの推定量}
 \begin{frame}{\insertsubsection}
 	中心化したRidge回帰モデルの推定量
 	\begin{itemize}
-	\item 切片: $\hat{\beta_0^*} = \bar{y} = \frac{\sum_{i=1}^{n}{y_i}}{n}$
-	\item 回帰係数ベクトル: $\hat{\bm{\beta}_1} = (Z^{\top}Z + \alpha I_p)^{-1} Z^{\top} \bm{y}$
+	\item $\hat{\beta_0^*} = \bar{y} = \sum_{i=1}^n y_i / n$: 切片
+	\item $\hat{\bm{\beta}_1} = (Z^{\top}Z + \alpha I_p)^{-1} Z^{\top} \bm{y}$: 回帰係数ベクトル
 	\end{itemize}
     \vspace{10pt}
     この結果から式\eqref{eq:linear_model_origin}の切片は$\hat{\beta_0} = \bar{y} - \hat{\beta}_1 \bar{x}_1 - \dots - \hat{\beta_p} \bar{x}_p$と推定される\\
@@ -201,7 +206,11 @@
 \subsection{Lassoとは}
 \begin{frame}{\insertsubsection}
     \begin{block}{Lasso}
-        切片を除く回帰係数の絶対値の和を正則化項としてとることで，パラメータの一部は完全に0になることから，モデルの推定と変数選択を同時に実行できる手法
+        パラメータの一部を完全に
+       \textcolor{red}{0}
+        と推定することから，モデルの推定と
+        \textcolor{red}{変数選択}
+        を同時に実行できる手法
     \end{block}
     \vspace{10pt}
     切片を除く回帰係数はデータの中心化によって切片と切り離して推定できる\\
@@ -223,12 +232,44 @@
 	\vspace{10pt}
 	また，ラグランジュの未定乗数法を用いて制約つき最小化問題に変形できる
 	\begin{equation}
-        	\min \sum_{i=1}^{n}\bigl(
-        		 y_i - \sum_{j=1}^{p} \beta_j z_{ij}
-        	\bigr)^2 \quad
-        	\text{subject to} \quad \sum_{j=1}^{p} |\beta_j| \leq \eta
-        \end{equation}
-
+            	\min_{\bm{\beta_1}} (
+            		 \bm{y} - Z \bm{\beta}_1 
+            	)^{\top}(
+            		 \bm{y} - Z \bm{\beta}_1
+            	) \quad
+            	\text{subject to} \quad \|\beta_j\|_q^q \leq \eta
+	\end{equation}
+	\begin{itemize}
+            	\item $\eta$: $\alpha$によって定まる定数
+        \end{itemize}
+\end{frame}
+\subsection{RidgeとLassoの違い}
+\begin{frame}{\insertsubsection}
+    \begin{figure}[Ht]
+            \begin{tabular}{cc}
+            	 \begin{minipage}{0.4\hsize}
+                   	 \includegraphics[width=1.0\linewidth]{../img/ridge.pdf}
+            		 \caption{Ridgeの推定}
+            		 \label{fig:ridge}
+            	\end{minipage}
+	 	\begin{minipage}{0.4\hsize}
+                            \includegraphics[width=1.0\linewidth]{../img/lasso.pdf}
+            		 \caption{Lassoの推定}
+            		 \label{fig:lasso}
+            	\end{minipage}
+    	     \end{tabular}
+    \end{figure}
+    説明変数を$x_1$と$x_2$の2つの場合を考える
+    \begin{itemize}
+    	\item Ridgeでは$\beta_1^2 + \beta_2^2 \le \eta$を満たす解を求める
+		\begin{itemize}
+			\item 最小2乗推定量$\hat{\bm{\beta}}$よりも$\beta_1$，$\beta_2$ともに0に近い値となる
+	    	\end{itemize}
+	\item Lassoでは$|\beta_1| + |\beta_2| \le \eta$を満たす解を求める
+		\begin{itemize}
+			\item $\beta_1 = 0$のようにスパースな解が得られやすい
+		\end{itemize}
+    \end{itemize}
 \end{frame}
 
 \section{計算機実験}
@@ -278,9 +319,9 @@
     \end{figure}
     \begin{itemize}
         \item $\alpha$が0に近いほど，RidgeとLassoの各推定値は最小2乗法のそれに近い
-        \item $\alpha$が大きくなるにつれて，RidgeもLassoも全説明変数の推定値が0に向かって縮小
+        \item $\alpha$の増化によって，RidgeもLassoも全説明変数の推定値が0に向かって縮小
          \begin{itemize}
-            \item 特に，Lassoにおいて$\alpha$=100の場合は全ての回帰係数の値がほぼ0
+            \item 特に，Lassoにおいて$\alpha=100$の場合は全ての回帰係数の値がほぼ0
          \end{itemize}
     \end{itemize}
     $\rightarrow$ $\alpha$の大きさの違いによって正則化の強さが変化することを確認できる
@@ -313,7 +354,7 @@
             	\end{minipage}
     	     \end{tabular}
     \end{figure}
-    \end{frame}
+\end{frame}
 
 \subsection{決定係数の実験設定}
 \begin{frame}{\insertsubsection}
@@ -334,7 +375,7 @@
 \subsection{決定係数の実験結果}
     \begin{frame}{\insertsubsection}
        \begin{figure}[H]
-        \begin{tabular}{ccc}
+        \begin{tabular}{cc}
     	 \begin{minipage}{0.4\hsize}
                     	\includegraphics[width=1.0\linewidth]{../img/score.pdf}
                     	\caption{決定係数の推移}
@@ -351,7 +392,7 @@
                         		\hline
                         		\multicolumn{6}{|c|}{train} \\
                         		\hline
-                        		linear & \multicolumn{5}{|c|}{0.95} \\
+                        		linear & \multicolumn{5}{|c|}{\textcolor{red}{0.95}} \\
                         		\hline
                         		ridge & 0.94 & 0.93 & 0.89 & 0.79 & 0.60 \\
                         		\hline
@@ -362,9 +403,9 @@
                         		\hline
                         		linear & \multicolumn{5}{|c|}{0.61} \\
                         		\hline
-                        		ridge & 0.70 & 0.77 & 0.75 &0.64 & 0.42\\
+                        		ridge & 0.70 & \textcolor{red}{0.77} & 0.75 & 0.64 & 0.42\\
                         		\hline
-                        		lasso & 0.77 & 0.63 & 0.21 & 0.00 & 0.00 \\
+                        		lasso & \textcolor{red}{0.77} & 0.63 & 0.21 & 0.00 & 0.00 \\
                         		\hline
                                 	\end{tabular}
                         	\label{tab:score}
